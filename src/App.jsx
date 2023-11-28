@@ -6,49 +6,49 @@ import usersFromServer from './api/users';
 import photosFromServer from './api/photos';
 import albumsFromServer from './api/albums';
 
-const albums = albumsFromServer.map((album) => {
+const photos = photosFromServer.map((photo) => {
+  const album
+    = albumsFromServer.find(currentAlbum => (
+      currentAlbum.id === photo.albumId
+    ));
+
   const user
     = usersFromServer.find(currentUser => currentUser.id === album.userId);
 
-  const photo
-    = photosFromServer.find(currentPhoto => (
-      currentPhoto.albumId === album.id
-    ));
-
   return {
-    ...album,
-    photo,
+    ...photo,
+    album,
     user,
   };
 });
 
-const getFilteredAlbumsList = (
+const getFilteredPhotosList = (
   list,
   user,
   input,
   selectedAlbums,
 ) => {
-  let filteredAlbums = [...list];
+  let filteredPhotos = [...list];
 
   if (user) {
-    filteredAlbums = filteredAlbums.filter(
+    filteredPhotos = filteredPhotos.filter(
       album => album.user === user,
     );
   }
 
   if (input) {
-    filteredAlbums = filteredAlbums.filter(album => (
-      (album.photo.title).toLowerCase().includes(input.toLowerCase())
+    filteredPhotos = filteredPhotos.filter(photo => (
+      (photo.title).toLowerCase().includes(input.toLowerCase())
     ));
   }
 
   if (selectedAlbums.length > 0) {
-    filteredAlbums = filteredAlbums.filter(album => (
-      selectedAlbums.includes(album.id)
+    filteredPhotos = filteredPhotos.filter(photo => (
+      selectedAlbums.includes(photo.album.id)
     ));
   }
 
-  return filteredAlbums;
+  return filteredPhotos;
 };
 
 // const getSortedAlbumsList = (list, sortBy, sortType) => {
@@ -97,8 +97,8 @@ export const App = () => {
   // const [sortBy, setSortBy] = useState('');
   // const [sortType, setSortType] = useState('');
 
-  const filteredAlbumsList = getFilteredAlbumsList(
-    albums,
+  const filteredPhotosList = getFilteredPhotosList(
+    photos,
     currentUser,
     currentInput,
     currentAlbums,
@@ -240,7 +240,7 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {filteredAlbumsList.length > 0 ? (
+          {filteredPhotosList.length > 0 ? (
             <table
               className="table is-striped is-narrow is-fullwidth"
             >
@@ -297,22 +297,22 @@ export const App = () => {
               </thead>
 
               <tbody>
-                {filteredAlbumsList.map(album => (
+                {filteredPhotosList.map(photo => (
                   <tr>
                     <td className="has-text-weight-bold">
-                      {album.id}
+                      {photo.id}
                     </td>
 
-                    <td>{album.photo.title}</td>
-                    <td>{album.title}</td>
+                    <td>{photo.title}</td>
+                    <td>{photo.album.title}</td>
 
                     <td
                       className={cn(
-                        { 'has-text-link': album.user.sex === 'm' },
-                        { 'has-text-danger': album.user.sex === 'f' },
+                        { 'has-text-link': photo.user.sex === 'm' },
+                        { 'has-text-danger': photo.user.sex === 'f' },
                       )}
                     >
-                      {album.user.name}
+                      {photo.user.name}
                     </td>
                   </tr>
                 ))}
